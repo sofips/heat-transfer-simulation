@@ -4,6 +4,36 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Barra térmica", layout="wide")
 
+HEAT_PALETTE = {
+    "bg_gradient_start": "#fff6e9",
+    "bg_gradient_end": "#ffe0b2",
+    "sidebar_start": "#ffd8a8",
+    "sidebar_end": "#ffb370",
+    "figure_bg": "#fff1df",
+    "axes_bg": "#fff7ee",
+    "text": "#5b250f",
+    "line": "#d94801",
+    "grid": "#f5a26f",
+}
+
+st.markdown(
+    f"""
+    <style>
+        .stApp {{
+            background: linear-gradient(120deg, {HEAT_PALETTE['bg_gradient_start']}, {HEAT_PALETTE['bg_gradient_end']});
+            color: {HEAT_PALETTE['text']};
+        }}
+        [data-testid="stSidebar"] {{
+            background: linear-gradient(180deg, {HEAT_PALETTE['sidebar_start']}, {HEAT_PALETTE['sidebar_end']});
+        }}
+        h1, h2, h3, p, li, label {{
+            color: {HEAT_PALETTE['text']};
+        }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 st.title("🌡️ Simulación de barra con conducción + convección")
 
 st.markdown("""
@@ -59,24 +89,41 @@ col1, col2 = st.columns(2)
 
 # ---- gráfico 1: perfil ----
 with col1:
-    fig1, ax1 = plt.subplots()
-    ax1.plot(x, T)
+    fig1, ax1 = plt.subplots(facecolor=HEAT_PALETTE["figure_bg"])
+    ax1.set_facecolor(HEAT_PALETTE["axes_bg"])
+    ax1.plot(x, T, color=HEAT_PALETTE["line"], linewidth=3)
+    ax1.grid(alpha=0.35, color=HEAT_PALETTE["grid"])
+    ax1.tick_params(colors=HEAT_PALETTE["text"])
+    for spine in ax1.spines.values():
+        spine.set_color(HEAT_PALETTE["text"])
     ax1.set_xlabel("x")
     ax1.set_ylabel("T(x)")
     ax1.set_title("Perfil de temperatura")
+    ax1.xaxis.label.set_color(HEAT_PALETTE["text"])
+    ax1.yaxis.label.set_color(HEAT_PALETTE["text"])
+    ax1.title.set_color(HEAT_PALETTE["text"])
     st.pyplot(fig1)
 
 # ---- gráfico 2: barra ----
 with col2:
     bar = np.tile(T, (30,1))
 
-    fig2, ax2 = plt.subplots()
-    im = ax2.imshow(bar, aspect='auto', extent=[0, L, 0, 1])
+    fig2, ax2 = plt.subplots(facecolor=HEAT_PALETTE["figure_bg"])
+    ax2.set_facecolor(HEAT_PALETTE["axes_bg"])
+    im = ax2.imshow(bar, aspect='auto', extent=[0, L, 0, 1], cmap="inferno")
     ax2.set_title("Visualización de la barra")
     ax2.set_xlabel("x")
     ax2.set_yticks([])
+    ax2.tick_params(colors=HEAT_PALETTE["text"])
+    for spine in ax2.spines.values():
+        spine.set_color(HEAT_PALETTE["text"])
+    ax2.xaxis.label.set_color(HEAT_PALETTE["text"])
+    ax2.title.set_color(HEAT_PALETTE["text"])
 
-    plt.colorbar(im, ax=ax2)
+    cbar = plt.colorbar(im, ax=ax2)
+    cbar.set_label("Temperatura", color=HEAT_PALETTE["text"])
+    cbar.ax.tick_params(color=HEAT_PALETTE["text"])
+    plt.setp(cbar.ax.get_yticklabels(), color=HEAT_PALETTE["text"])
     st.pyplot(fig2)
 
 # -------------------------
